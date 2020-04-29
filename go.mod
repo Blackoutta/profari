@@ -1,3 +1,3 @@
-module github.com/Blackoutta/profari/v0
+module github.com/Blackoutta/profari
 
 go 1.14
