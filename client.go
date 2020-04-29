@@ -115,3 +115,7 @@ func (c *Client) DecodeJSON(v interface{}) *Client {
 	}
 	return c
 }
+
+func (c *Client) CloseErrChannel() {
+	close(c.ErrChan)
+}

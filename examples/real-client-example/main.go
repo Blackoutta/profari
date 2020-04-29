@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Blackoutta/profari/v0"
+	"github.com/Blackoutta/profari"
 )
 
 func main() {
