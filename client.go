@@ -116,6 +116,12 @@ func (c *Client) DecodeJSON(v interface{}) *Client {
 	return c
 }
 
-func (c *Client) CloseErrChannel() {
+func (c *Client) EndTest() {
 	close(c.ErrChan)
+}
+
+func (c *Client) FailTest(msg string) {
+	err := fmt.Errorf(msg)
+	c.Println(err)
+	c.ErrChan <- err
 }

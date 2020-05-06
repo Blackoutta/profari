@@ -66,10 +66,8 @@ func (t exampleTest) Run() {
 
 	// If you want the program to end upon encountering any other error,
 	// just send that err to the client's error channel. You may want to print it first for additional information.
-	someErr := fmt.Errorf("Error: some other err that's not coming from http requests")
-	c.Println(someErr.Error())
-	c.ErrChan <- someErr
+	c.FailTest("Error: some other err that's not coming from http requests")
 
 	// close error channel (must remember to do!)
-	close(c.ErrChan)
+	c.EndTest()
 }
