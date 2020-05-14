@@ -3,14 +3,18 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"sync"
 
 	"github.com/Blackoutta/profari"
 )
 
+var wg sync.WaitGroup
+
 func main() {
-	t1 := exampleTest{
+	t1 := &exampleTest{
 		Name:    "example-test1",
-		ErrChan: make(chan error),
+		ErrChan: make(chan error, 1),
 	}
 
 	result := profari.RunTests(t1)
@@ -38,36 +42,55 @@ type fakeResp struct {
 }
 
 // exampleTest should implement the Test interface.
-type exampleTest profari.Case
+type exampleTest struct {
+	Name    string
+	ErrChan chan error
+	ID1     int
+	ID2     int
+	*profari.Client
+	logFile *os.File
+}
 
-func (t exampleTest) GetName() string {
+func (t *exampleTest) GetName() string {
 	return t.Name
 }
 
-func (t exampleTest) GetErrChan() chan error {
+func (t *exampleTest) GetErrChan() chan error {
 	return t.ErrChan
 }
 
-func (t exampleTest) Run() {
+func (t *exampleTest) Run() {
+	var err error
 	// You must initialize the profari client before test starts
-	c, logFile, err := profari.NewClient(t.Name, t.ErrChan)
+	t.Client, t.logFile, err = profari.NewClient(t.Name, t.ErrChan)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	defer logFile.Close()
+	defer t.logFile.Close()
 
 	// Then you can chain your request with unmarshaling and assertion.
 	// var resp fakeResp
+
 	// c.Send(exampleRequest{}).DecodeJSON(&resp).AssertContainString("Fake assertion1", c.Resp, "welcome")
 
 	// Or assert the raw http response string
-	c.Send(exampleRequest{}).AssertContainString("Fake assertion1", c.Resp, "make it fail on intention")
+	t.ID1 = 123
+	t.ID2 = 321
+	t.Send(exampleRequest{}).AssertContainString("Fake assertion1", t.Resp, "make it fail on intention")
 
 	// If you want the program to end upon encountering any other error,
 	// just send that err to the client's error channel. You may want to print it first for additional information.
-	c.FailTest("Error: some other err that's not coming from http requests")
+
+	// c.FailTest("Error: some other err that's not coming from http requests")
 
 	// close error channel (must remember to do!)
-	c.EndTest()
+
+}
+
+func (t *exampleTest) Teardown() {
+	fmt.Println("fake teardown has ran!!!")
+	fmt.Printf("deleting resource with %v\n", t.ID1)
+	fmt.Printf("deleting resource with %v\n", t.ID2)
+	t.Send(exampleRequest{}).AssertContainString("Fake teardown assertion", t.Resp, "make teardown fail on intention")
 }

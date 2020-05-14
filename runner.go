@@ -4,13 +4,9 @@ import "fmt"
 
 type Test interface {
 	Run()
+	Teardown()
 	GetName() string
 	GetErrChan() chan error
-}
-
-type Case struct {
-	Name    string
-	ErrChan chan error
 }
 
 func RunTests(tests ...Test) string {
@@ -26,10 +22,12 @@ func RunTests(tests ...Test) string {
 			for err := range s.GetErrChan() {
 				if err != nil {
 					r.success = false
+					s.Teardown()
 					rc <- r
 					return
 				}
 			}
+			s.Teardown()
 			rc <- r
 		}(s)
 	}
