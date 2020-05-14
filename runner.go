@@ -25,7 +25,6 @@ func RunTests(tests ...Test) string {
 					case err := <-s.GetErrChan():
 						if err != nil {
 							if err.Error() == "done" {
-								fmt.Println("end test!")
 								rc <- r
 								return
 							}
