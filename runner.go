@@ -15,20 +15,28 @@ func RunTests(tests ...Test) string {
 	for _, s := range tests {
 		go func(s Test) {
 			r := result{
-				name: s.GetName(),
+				name:    s.GetName(),
+				success: true,
 			}
-			go s.Run()
-			r.success = true
-			for err := range s.GetErrChan() {
-				if err != nil {
-					r.success = false
-					s.Teardown()
-					rc <- r
-					return
+
+			go func() {
+				for {
+					select {
+					case err := <-s.GetErrChan():
+						if err != nil {
+							if err.Error() == "done" {
+								fmt.Println("end test!")
+								rc <- r
+								return
+							}
+							r.success = false
+						}
+					}
 				}
-			}
+			}()
+
+			s.Run()
 			s.Teardown()
-			rc <- r
 		}(s)
 	}
 

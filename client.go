@@ -117,7 +117,9 @@ func (c *Client) DecodeJSON(v interface{}) *Client {
 }
 
 func (c *Client) EndTest() {
-	close(c.ErrChan)
+	err := fmt.Errorf("done")
+	c.ErrChan <- err
+	fmt.Println("done is sent")
 }
 
 func (c *Client) FailTest(msg string) {

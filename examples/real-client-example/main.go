@@ -77,7 +77,7 @@ func (t *exampleTest) Run() {
 	// Or assert the raw http response string
 	t.ID1 = 123
 	t.ID2 = 321
-	t.Send(exampleRequest{}).AssertContainString("Fake assertion1", t.Resp, "make it fail on intention")
+	t.Send(exampleRequest{}).AssertContainString("Fake assertion1", t.Resp, "welcome")
 
 	// If you want the program to end upon encountering any other error,
 	// just send that err to the client's error channel. You may want to print it first for additional information.
@@ -85,12 +85,12 @@ func (t *exampleTest) Run() {
 	// c.FailTest("Error: some other err that's not coming from http requests")
 
 	// close error channel (must remember to do!)
-
 }
 
 func (t *exampleTest) Teardown() {
 	fmt.Println("fake teardown has ran!!!")
 	fmt.Printf("deleting resource with %v\n", t.ID1)
 	fmt.Printf("deleting resource with %v\n", t.ID2)
-	t.Send(exampleRequest{}).AssertContainString("Fake teardown assertion", t.Resp, "make teardown fail on intention")
+	t.Send(exampleRequest{}).AssertContainString("Fake teardown assertion", t.Resp, "welcome")
+	t.EndTest()
 }

@@ -64,7 +64,6 @@ func (a *Assertor) AssertContainString(title string, full, sub string) {
 	}
 	a.Printf(astResult, title, pass)
 	a.ErrChan <- nil
-
 }
 
 func (a *Assertor) processRec() string {
