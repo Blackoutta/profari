@@ -9,7 +9,7 @@ type Test interface {
 	GetErrChan() chan error
 }
 
-func RunTests(tests ...Test) string {
+func RunTests(tests ...Test) (string, int) {
 	rc := make(chan result)
 
 	for _, s := range tests {
@@ -39,15 +39,19 @@ func RunTests(tests ...Test) string {
 		}(s)
 	}
 
+	var exitCode int
 	template := "%-20v%-20v%-20v\n"
 	resultText := fmt.Sprintf(template, "ID", "Suite", "Success?")
 	for j := 0; j < len(tests); j++ {
 		r := <-rc
+		if r.success == false {
+			exitCode = 1
+		}
 		r.id = j + 1
 		row := fmt.Sprintf(template, r.id, r.name, r.success)
 		resultText += row
 	}
-	return resultText
+	return resultText, exitCode
 }
 
 type result struct {
